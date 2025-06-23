@@ -29,20 +29,32 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
+
+        /* 语言切换按钮的激活状态 */
+        .lang-btn.active {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
     <!-- 主容器 -->
-    <div class="container mx-auto max-w-5xl px-4 py-8 sm:py-12">
+    <div class="container mx-auto max-w-5xl px-4 py-8 sm:py-12 relative">
+
+        <!-- 语言切换器 -->
+        <div id="lang-switcher" class="absolute top-4 right-4 flex items-center bg-slate-200 rounded-full p-1 text-sm">
+            <button id="lang-zh" class="lang-btn px-3 py-1 rounded-full transition-colors duration-300">中文</button>
+            <button id="lang-en" class="lang-btn px-3 py-1 rounded-full transition-colors duration-300">English</button>
+        </div>
 
         <!-- 顶部标题区域 -->
-        <header class="text-center mb-12">
-            <h1 class="text-4xl sm:text-5xl font-bold text-slate-900">
+        <header class="text-center mb-12 pt-12 sm:pt-0">
+            <h1 class="text-4xl sm:text-5xl font-bold text-slate-900" id="header-title">
                 🚀 TravelHacks
             </h1>
-            <p class="mt-4 text-lg text-slate-600">
-                聚合全球旅行黑客工具与资源，让你的旅行更聪明。
+            <p class="mt-4 text-lg text-slate-600" id="header-subtitle">
+                聚合全球旅行工具与资源，让您的旅行更轻松。
             </p>
         </header>
 
@@ -52,219 +64,229 @@
         </main>
 
         <!-- 底部信息 -->
-        <footer class="text-center mt-16">
-            <p class="text-slate-500">&copy; <span id="year"></span> TravelHacks.space. All Rights Reserved.</p>
+        <footer class="text-center mt-16 text-sm">
+            <div class="space-y-3">
+                <p class="text-slate-600" id="footer-author">
+                    本站由 [阿尔托莉雅] 创建与维护。
+                </p>
+                <div class="flex justify-center items-center space-x-4 text-slate-600">
+                    <a href="mailto:2697039335@qq.com" class="hover:text-slate-900 transition-colors" id="footer-contact">
+                        联系邮箱
+                    </a>
+                    <span>&middot;</span>
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="hover:text-slate-900 transition-colors" id="footer-social">
+                        社交媒体
+                    </a>
+                </div>
+            </div>
+            
+            <p class="text-slate-500 mt-6">&copy; <span id="year"></span> TravelHacks.space. All Rights Reserved.</p>
         </footer>
     </div>
 
     <script>
         // --- 数据配置区 ---
-        // 你所有的链接都可以在这里修改和添加，非常方便！
-        // 只需要修改这里的 `categories` 数组即可。
-        // logo: 建议使用网站的favicon，你可以右键点击网站标签页的图标，复制图片地址。
-        //       如果找不到，可以用 https://logo.clearbit.com/ + 网站域名 的格式，例如: 'https://logo.clearbit.com/ctrip.com'
-        
-        const categories = [
-            {
-                name: "机票 & 酒店预订",
-                links: [
-                    {
-                        name: "携程旅行",
-                        url: "https://www.ctrip.com/",
-                        logo: "https://logo.clearbit.com/ctrip.com",
-                        desc: "国内领先的一站式旅行服务平台。"
-                    },
-                    {
-                        name: "Booking.com",
-                        url: "https://www.booking.com/",
-                        logo: "https://logo.clearbit.com/booking.com",
-                        desc: "全球酒店预订的首选，房源遍布世界各地。"
-                    },
-                    {
-                        name: "Agoda (安可达)",
-                        url: "https://www.agoda.com/",
-                        logo: "https://logo.clearbit.com/agoda.com",
-                        desc: "亚太地区酒店预订优势明显，价格实惠。"
-                    },
-                    {
-                        name: "Airbnb (爱彼迎)",
-                        url: "https://www.airbnb.com/",
-                        logo: "https://logo.clearbit.com/airbnb.com",
-                        desc: "寻找特色民宿和当地体验的不二之选。"
-                    },
-                     {
-                        name: "Skyscanner (天巡)",
-                        url: "https://www.skyscanner.net/",
-                        logo: "https://logo.clearbit.com/skyscanner.net",
-                        desc: "强大的全球机票、酒店、租车比价引擎。"
-                    },
+        // 链接的固定信息（URL和Logo）
+        const linkDatabase = {
+            ctrip: { url: "https://www.ctrip.com/", logo: "https://logo.clearbit.com/ctrip.com" },
+            booking: { url: "https://www.booking.com/", logo: "https://logo.clearbit.com/booking.com" },
+            agoda: { url: "https://www.agoda.com/", logo: "https://logo.clearbit.com/agoda.com" },
+            airbnb: { url: "https://www.airbnb.com/", logo: "https://logo.clearbit.com/airbnb.com" },
+            skyscanner: { url: "https://www.skyscanner.net/", logo: "https://logo.clearbit.com/skyscanner.net" },
+            mafengwo: { url: "https://www.mafengwo.cn/", logo: "https://logo.clearbit.com/mafengwo.cn" },
+            qyer: { url: "https://www.qyer.com/", logo: "https://logo.clearbit.com/qyer.com" },
+            xiaohongshu: { url: "https://www.xiaohongshu.com/", logo: "https://logo.clearbit.com/xiaohongshu.com" },
+            tripadvisor: { url: "https://www.tripadvisor.com/", logo: "https://logo.clearbit.com/tripadvisor.com" },
+            klook: { url: "https://www.klook.com/", logo: "https://logo.clearbit.com/klook.com" },
+            getyourguide: { url: "https://www.getyourguide.com/", logo: "https://logo.clearbit.com/getyourguide.com" },
+            flightaware: { url: "https://flightaware.com/", logo: "https://logo.clearbit.com/flightaware.com" },
+            expertflyer: { url: "https://www.expertflyer.com/", logo: "https://logo.clearbit.com/expertflyer.com" },
+            awardhacker: { url: "https://awardhacker.com/", logo: "https://logo.clearbit.com/awardhacker.com" },
+            vfs: { url: "https://www.vfsglobal.com/", logo: "https://logo.clearbit.com/vfsglobal.com" },
+            nia: { url: "https://www.nia.gov.cn/", logo: "https://logo.clearbit.com/nia.gov.cn" },
+            gmaps: { url: "https://maps.google.com/", logo: "https://logo.clearbit.com/google.com" },
+            gtranslate: { url: "https://translate.google.com/", logo: "https://logo.clearbit.com/google.com" },
+            xcurrency: { url: "https://www.xcurrency.com/", logo: "https://logo.clearbit.com/xcurrency.com" },
+            uber: { url: "#", logo: "https://logo.clearbit.com/uber.com" },
+        };
+
+        // 所有需要翻译的文本内容
+        const textData = {
+            zh: {
+                pageTitle: "TravelHacks - 你的旅行黑客导航",
+                headerSubtitle: "聚合全球旅行工具与资源，让你的旅行更轻松。",
+                footerAuthor: (name) => `本站由 ${name} 创建与维护。`,
+                footerContact: "联系邮箱",
+                footerSocial: "社交媒体",
+                authorName: "[阿尔托莉雅]",
+                categories: [
+                    { name: "机票 & 酒店预订", links: [
+                        { id: 'ctrip', name: "携程旅行", desc: "国内领先的一站式旅行服务平台。" },
+                        { id: 'booking', name: "Booking.com", desc: "全球酒店预订的首选，房源遍布世界各地。" },
+                        { id: 'agoda', name: "Agoda (安可达)", desc: "亚太地区酒店预订优势明显，价格实惠。" },
+                        { id: 'airbnb', name: "Airbnb (爱彼迎)", desc: "寻找特色民宿和当地体验的不二之选。" },
+                        { id: 'skyscanner', name: "Skyscanner (天巡)", desc: "强大的全球机票、酒店、租车比价引擎。" }
+                    ]},
+                    { name: "旅行攻略 & 社区", links: [
+                        { id: 'mafengwo', name: "马蜂窝", desc: "海量用户原创的旅行游记和深度攻略。" },
+                        { id: 'qyer', name: "穷游网", desc: "专注于出境游，提供行程助手和实用锦囊。" },
+                        { id: 'xiaohongshu', name: "小红书", desc: "发现时下最流行的旅行地和拍照技巧。" },
+                        { id: 'tripadvisor', name: "TripAdvisor", desc: "全球餐厅、酒店和景点的真实用户点评。" }
+                    ]},
+                    { name: "当地体验 & 活动", links: [
+                        { id: 'klook', name: "Klook (客路)", desc: "预订景点门票、一日游和特色体验活动。" },
+                        { id: 'getyourguide', name: "GetYourGuide", desc: "全球超多旅行体验和活动可供探索预订。" }
+                    ]},
+                    { name: "航空 & 里程", links: [
+                        { id: 'flightaware', name: "FlightAware", desc: "实时航班跟踪，查询航班历史数据与延误情况。" },
+                        { id: 'expertflyer', name: "ExpertFlyer", desc: "高阶玩家必备，查询舱位情况和里程票。" },
+                        { id: 'awardhacker', name: "AwardHacker", desc: "告诉你用最少的里程兑换去目的地的机票。" }
+                    ]},
+                    { name: "签证 & 文件", links: [
+                        { id: 'vfs', name: "VFS Global", desc: "全球最大的签证外包服务提供商。" },
+                        { id: 'nia', name: "国家移民管理局", desc: "护照、港澳台通行证等官方办理信息。" }
+                    ]},
+                    { name: "实用工具", links: [
+                        { id: 'gmaps', name: "Google Maps", desc: "国外出行必备的地图与导航工具。" },
+                        { id: 'gtranslate', name: "Google Translate", desc: "支持多种语言的实时翻译，沟通无障碍。" },
+                        { id: 'xcurrency', name: "极简汇率", desc: "设计简洁、实时更新的汇率换算工具。" },
+                        { id: 'uber', name: "Uber/Grab/滴滴", desc: "根据所在地选择主流的打车应用。" }
+                    ]}
                 ]
             },
-            {
-                name: "旅行攻略 & 社区",
-                links: [
-                    {
-                        name: "马蜂窝",
-                        url: "https://www.mafengwo.cn/",
-                        logo: "https://logo.clearbit.com/mafengwo.cn",
-                        desc: "海量用户原创的旅行游记和深度攻略。"
-                    },
-                    {
-                        name: "穷游网",
-                        url: "https://www.qyer.com/",
-                        logo: "https://logo.clearbit.com/qyer.com",
-                        desc: "专注于出境游，提供行程助手和实用锦囊。"
-                    },
-                    {
-                        name: "小红书",
-                        url: "https://www.xiaohongshu.com/",
-                        logo: "https://logo.clearbit.com/xiaohongshu.com",
-                        desc: "发现时下最流行的旅行地和拍照技巧。"
-                    },
-                    {
-                        name: "TripAdvisor",
-                        url: "https://www.tripadvisor.com/",
-                        logo: "https://logo.clearbit.com/tripadvisor.com",
-                        desc: "全球餐厅、酒店和景点的真实用户点评。"
-                    },
-                ]
-            },
-            {
-                name: "当地体验 & 活动",
-                links: [
-                    {
-                        name: "Klook (客路)",
-                        url: "https://www.klook.com/",
-                        logo: "https://logo.clearbit.com/klook.com",
-                        desc: "预订景点门票、一日游和特色体验活动。"
-                    },
-                    {
-                        name: "GetYourGuide",
-                        url: "https://www.getyourguide.com/",
-                        logo: "https://logo.clearbit.com/getyourguide.com",
-                        desc: "全球超多旅行体验和活动可供探索预订。"
-                    },
-                ]
-            },
-            {
-                name: "航空 & 里程",
-                links: [
-                     {
-                        name: "FlightAware",
-                        url: "https://flightaware.com/",
-                        logo: "https://logo.clearbit.com/flightaware.com",
-                        desc: "实时航班跟踪，查询航班历史数据与延误情况。"
-                    },
-                    {
-                        name: "ExpertFlyer",
-                        url: "https://www.expertflyer.com/",
-                        logo: "https://logo.clearbit.com/expertflyer.com",
-                        desc: "高阶玩家必备，查询舱位情况和里程票。"
-                    },
-                    {
-                        name: "AwardHacker",
-                        url: "https://awardhacker.com/",
-                        logo: "https://logo.clearbit.com/awardhacker.com",
-                        desc: "告诉你用最少的里程兑换去目的地的机票。"
-                    },
-                ]
-            },
-             {
-                name: "签证 & 文件",
-                links: [
-                    {
-                        name: "VFS Global",
-                        url: "https://www.vfsglobal.com/",
-                        logo: "https://logo.clearbit.com/vfsglobal.com",
-                        desc: "全球最大的签证外包服务提供商。"
-                    },
-                    {
-                        name: "国家移民管理局",
-                        url: "https://www.nia.gov.cn/",
-                        logo: "https://logo.clearbit.com/nia.gov.cn",
-                        desc: "护照、港澳台通行证等官方办理信息。"
-                    },
-                ]
-            },
-            {
-                name: "实用工具",
-                links: [
-                    {
-                        name: "Google Maps",
-                        url: "https://maps.google.com/",
-                        logo: "https://logo.clearbit.com/google.com",
-                        desc: "国外出行必备的地图与导航工具。"
-                    },
-                    {
-                        name: "Google Translate",
-                        url: "https://translate.google.com/",
-                        logo: "https://logo.clearbit.com/google.com",
-                        desc: "支持多种语言的实时翻译，沟通无障碍。"
-                    },
-                    {
-                        name: "极简汇率",
-                        url: "https://www.xcurrency.com/",
-                        logo: "https://logo.clearbit.com/xcurrency.com",
-                        desc: "设计简洁、实时更新的汇率换算工具。"
-                    },
-                    {
-                        name: "Uber/Grab/滴滴",
-                        url: "#",
-                        logo: "https://logo.clearbit.com/uber.com",
-                        desc: "根据所在地选择主流的打车应用。"
-                    },
+            en: {
+                pageTitle: "TravelHacks - Your Travel Hacker Navigator",
+                headerSubtitle: "Aggregating tools and resources for smarter travel worldwide.",
+                footerAuthor: (name) => `Created & maintained by ${name}.`,
+                footerContact: "Contact",
+                footerSocial: "Social Media",
+                authorName: "[Enter Your Name Here]",
+                categories: [
+                    { name: "Flights & Hotels", links: [
+                        { id: 'ctrip', name: "Ctrip", desc: "China's leading one-stop travel service platform." },
+                        { id: 'booking', name: "Booking.com", desc: "Top choice for worldwide hotel reservations." },
+                        { id: 'agoda', name: "Agoda", desc: "Great deals on hotels, especially in Asia-Pacific." },
+                        { id: 'airbnb', name: "Airbnb", desc: "Find unique places to stay and local experiences." },
+                        { id: 'skyscanner', name: "Skyscanner", desc: "Powerful search engine for flights, hotels, and car rentals." }
+                    ]},
+                    { name: "Travel Guides & Communities", links: [
+                        { id: 'mafengwo', name: "Mafengwo", desc: "Massive user-generated travel guides and diaries." },
+                        { id: 'qyer', name: "Qyer", desc: "Focuses on outbound tourism with detailed itineraries." },
+                        { id: 'xiaohongshu', name: "Xiaohongshu", desc: "Discover trendy travel spots and photo ideas." },
+                        { id: 'tripadvisor', name: "TripAdvisor", desc: "Real user reviews for hotels, restaurants and attractions." }
+                    ]},
+                    { name: "Local Experiences & Activities", links: [
+                        { id: 'klook', name: "Klook", desc: "Book attraction tickets, day trips, and unique activities." },
+                        { id: 'getyourguide', name: "GetYourGuide", desc: "Explore and book countless travel experiences worldwide." }
+                    ]},
+                    { name: "Aviation & Miles", links: [
+                        { id: 'flightaware', name: "FlightAware", desc: "Live flight tracking and historical flight data." },
+                        { id: 'expertflyer', name: "ExpertFlyer", desc: "A must-have for frequent flyers to check award availability." },
+                        { id: 'awardhacker', name: "AwardHacker", desc: "Find the best reward flights with the fewest miles." }
+                    ]},
+                    { name: "Visa & Documents", links: [
+                        { id: 'vfs', name: "VFS Global", desc: "The world's largest visa outsourcing and technology services specialist." },
+                        { id: 'nia', name: "NIA China", desc: "Official information on passports and travel permits." }
+                    ]},
+                    { name: "Utilities", links: [
+                        { id: 'gmaps', name: "Google Maps", desc: "Essential map and navigation tool for traveling abroad." },
+                        { id: 'gtranslate', name: "Google Translate", desc: "Real-time translation for seamless communication." },
+                        { id: 'xcurrency', name: "xCurrency", desc: "A clean and real-time currency converter." },
+                        { id: 'uber', name: "Uber/Grab/Didi", desc: "Choose the main ride-hailing app based on your location." }
+                    ]}
                 ]
             }
-        ];
+        };
 
         // --- 动态渲染脚本 ---
-        // 下面的代码负责读取上面的数据，并把它们变成网页内容。
-        // 你通常不需要修改这部分代码。
-        
+
         const mainContent = document.getElementById('main-content');
-        
-        categories.forEach(category => {
-            // 创建分类容器
-            const categorySection = document.createElement('section');
-            categorySection.className = 'mb-12';
+        const yearSpan = document.getElementById('year');
+        const langZhBtn = document.getElementById('lang-zh');
+        const langEnBtn = document.getElementById('lang-en');
 
-            // 创建分类标题
-            const categoryTitle = document.createElement('h2');
-            categoryTitle.className = 'text-2xl font-bold text-slate-800 mb-6';
-            categoryTitle.textContent = category.name;
+        function renderContent(lang = 'zh') {
+            const t = textData[lang];
             
-            // 创建链接网格容器
-            const linksGrid = document.createElement('div');
-            linksGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+            // 更新页面静态文本
+            document.title = t.pageTitle;
+            document.getElementById('header-subtitle').textContent = t.headerSubtitle;
+            document.getElementById('footer-author').textContent = t.footerAuthor(t.authorName);
+            document.getElementById('footer-contact').textContent = t.footerContact;
+            document.getElementById('footer-social').textContent = t.footerSocial;
+            
+            // 清空主内容区
+            mainContent.innerHTML = '';
+            
+            // 重新渲染分类和链接
+            t.categories.forEach(category => {
+                const categorySection = document.createElement('section');
+                categorySection.className = 'mb-12';
 
-            category.links.forEach(link => {
-                // 创建单个链接卡片
-                const linkCard = document.createElement('a');
-                linkCard.href = link.url;
-                linkCard.target = '_blank'; // 在新标签页打开
-                linkCard.rel = 'noopener noreferrer';
-                linkCard.className = 'link-card bg-white p-4 rounded-lg shadow-sm flex items-center space-x-4';
+                const categoryTitle = document.createElement('h2');
+                categoryTitle.className = 'text-2xl font-bold text-slate-800 mb-6';
+                categoryTitle.textContent = category.name;
                 
-                // 卡片内容
-                linkCard.innerHTML = `
-                    <img src="${link.logo}" alt="${link.name} Logo" class="w-12 h-12 rounded-md object-contain flex-shrink-0" onerror="this.src='https://placehold.co/64x64/e2e8f0/64748b?text=LOGO'">
-                    <div>
-                        <h3 class="font-semibold text-slate-900">${link.name}</h3>
-                        <p class="text-sm text-slate-500">${link.desc}</p>
-                    </div>
-                `;
-                linksGrid.appendChild(linkCard);
-            });
+                const linksGrid = document.createElement('div');
+                linksGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
 
-            categorySection.appendChild(categoryTitle);
-            categorySection.appendChild(linksGrid);
-            mainContent.appendChild(categorySection);
-        });
+                category.links.forEach(linkInfo => {
+                    const linkData = linkDatabase[linkInfo.id];
+                    if (!linkData) return;
+
+                    const linkCard = document.createElement('a');
+                    linkCard.href = linkData.url;
+                    linkCard.target = '_blank';
+                    linkCard.rel = 'noopener noreferrer';
+                    linkCard.className = 'link-card bg-white p-4 rounded-lg shadow-sm flex items-center space-x-4';
+                    
+                    linkCard.innerHTML = `
+                        <img src="${linkData.logo}" alt="${linkInfo.name} Logo" class="w-12 h-12 rounded-md object-contain flex-shrink-0" onerror="this.src='https.placehold.co/64x64/e2e8f0/64748b?text=LOGO'">
+                        <div>
+                            <h3 class="font-semibold text-slate-900">${linkInfo.name}</h3>
+                            <p class="text-sm text-slate-500">${linkInfo.desc}</p>
+                        </div>
+                    `;
+                    linksGrid.appendChild(linkCard);
+                });
+
+                categorySection.appendChild(categoryTitle);
+                categorySection.appendChild(linksGrid);
+                mainContent.appendChild(categorySection);
+            });
+        }
+        
+        function setLanguage(lang) {
+            renderContent(lang);
+            localStorage.setItem('travelhacks-lang', lang);
+            
+            if (lang === 'zh') {
+                langZhBtn.classList.add('active');
+                langEnBtn.classList.remove('active');
+                document.documentElement.lang = 'zh-CN';
+            } else {
+                langEnBtn.classList.add('active');
+                langZhBtn.classList.remove('active');
+                 document.documentElement.lang = 'en';
+            }
+        }
+
+        // --- 初始化和事件监听 ---
         
         // 自动更新页脚年份
-        document.getElementById('year').textContent = new Date().getFullYear();
+        yearSpan.textContent = new Date().getFullYear();
+
+        // 绑定语言切换按钮事件
+        langZhBtn.addEventListener('click', () => setLanguage('zh'));
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
+
+        // 页面加载时决定初始语言
+        const savedLang = localStorage.getItem('travelhacks-lang');
+        const browserLang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        const initialLang = savedLang || browserLang;
+        
+        setLanguage(initialLang);
 
     </script>
-
 </body>
 </html>
